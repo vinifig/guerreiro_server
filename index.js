@@ -1,30 +1,43 @@
 'use strict';
 
-const mysql = require('mysql');
+const express = require('express');
+const cors = require('cors');
 
-const mysql_host = 'localhost';
-const mysql_db   = 'guerreiro_app';
-const mysql_user = 'guerreiro_app';
-const mysql_pass = process.argv[2];
+const mysql = require('./lib/db');
+const bodyParser = require('body-parser')
+const Log = require('./lib/log');
 
-const conn = mysql.createConnection({
-  host: mysql_host,
-  user: mysql_user,
-  password: mysql_pass,
-  database: mysql_db
-});
+const app = express();
 
-const flags = {
-  db_conn : false
-}
+// DB config/init
+  var db = false;
+  mysql(process.argv[2]).then(
+    function(data){
+      db = data;
+    }, function(error){
+      Log.error(error);
+    }
+  );
 
-const callbacks = {
-  connection_callback : function(err){
-    if(err)
-      return console.log(err);
-    console.log("conectado");
-    flags.db_conn = true;
-  }
-}
 
-conn.connect(callbacks.connection_callback);
+// Server req config
+
+  // frescuras de requisição
+  app.use(cors());
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({extended:false}));
+
+  // resposta default em caso de não haver conexão com o db
+  app.use(function(req,res,next){
+    if(!db)
+      return res.json({error: "Error stablishing database connection"});
+    next();
+  });
+
+
+// ENDPOINTS
+// Aqui começa a programação de verdade
+
+// app.get('/endpoint', callback);
+
+app.listen(8080);
