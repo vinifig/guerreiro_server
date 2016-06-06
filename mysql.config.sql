@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS guerreiro_app;
-CREATE TABLE "guerreiro_app"@"localhost" IDENTIFIED BY "guerreiro123";
+
+CREATE USER "guerreiro_app"@"localhost" IDENTIFIED BY "guerreiro123";
 
 GRANT ALL PRIVILEGES ON guerreiro_app.* TO "guerreiro_app"@"localhost";
 

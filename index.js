@@ -7,7 +7,12 @@ const mysql = require('./lib/db');
 const bodyParser = require('body-parser')
 const Log = require('./lib/log');
 
+const modules = {};
+modules.users = require('./lib/modules/users');
+
+
 const app = express();
+
 
 // DB config/init
   var db = false;
@@ -31,6 +36,8 @@ const app = express();
   app.use(function(req,res,next){
     if(!db)
       return res.json({error: "Error stablishing database connection"});
+    return res.json({success: "Database connected"});
+    req.dbEntity = db;
     next();
   });
 
@@ -38,6 +45,17 @@ const app = express();
 // ENDPOINTS
 // Aqui começa a programação de verdade
 
-// app.get('/endpoint', callback);
+  // GET
+  app.get('/users', modules.users.getAll);
+  app.get('/users/:id', modules.users.getOne);
+
+  // POST
+  // app.post('/endpoint', callback);
+
+  // PUT
+  // app.put('/endpoint', callback);
+
+  // DELETE
+  // app.delete('/endpoint', callback);
 
 app.listen(8080);
