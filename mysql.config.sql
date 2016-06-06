@@ -72,3 +72,40 @@ CREATE TABLE IF NOT EXISTS PedidoItem(
   Constraint fk_PedidoItem_Pedido foreign key(codigo_pedido) references Pedido(codigo_pedido),
   Constraint fk_PedidoItem_Item foreign key(codigo_item) references ItemMenu(codigo_item)
 );
+
+-- FUNCTIONS
+DELIMITER $$
+
+CREATE FUNCTION precoPedido(codigo_pedido int) RETURNS float
+  BEGIN
+    DECLARE preco_pedido float DEFAULT '0.0';
+
+    SELECT sum(ItemMenu.preco_item) into preco_pedido
+      FROM PedidoItem
+      INNER JOIN ItemMenu
+        ON ItemMenu.codigo_item=PedidoItem.codigo_item
+      WHERE PedidoItem.codigo_pedido = codigo_pedido;
+
+    RETURN preco_pedido;
+  END $$
+
+DELIMITER ;
+
+-- VIEWS
+
+CREATE OR REPLACE VIEW PedidosEmAberto as
+  Select *, precoPedido(Pedido.codigo_pedido)
+    From Pedido
+    Where Pedido.status=1;
+
+CREATE OR REPLACE VIEW PedidosConfirmados as
+  Select *, precoPedido(Pedido.codigo_pedido)
+    From Pedido
+    Where Pedido.status=2;
+
+CREATE OR REPLACE VIEW PedidosEntregues as
+  Select *, precoPedido(Pedido.codigo_pedido)
+    From Pedido
+    Where Pedido.status=3;
+
+-- TRIGGERS
