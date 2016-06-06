@@ -200,6 +200,7 @@ DELIMITER $$
 
 
 DELIMITER ;
+
 -- INSERTS
 
 INSERT INTO Funcionario values("none", "Pedido Online")
