@@ -1,6 +1,7 @@
 CREATE DATABASE IF NOT EXISTS guerreiro_app;
+use guerreiro_app;
 
-CREATE USER "guerreiro_app"@"localhost" IDENTIFIED BY "guerreiro123";
+CREATE USER IF NOT EXISTS "guerreiro_app"@"localhost" IDENTIFIED BY "guerreiro123";
 
 GRANT ALL PRIVILEGES ON guerreiro_app.* TO "guerreiro_app"@"localhost";
 
@@ -11,17 +12,20 @@ CREATE TABLE IF NOT EXISTS Cliente(
   num_celular varchar(20) primary key,
   nome_cliente varchar(50) not null,
   senha varchar(32) not null,
-  email varchar(100) not null
+  email varchar(100) not null,
+  status_cliente int default 1
 );
 
 CREATE TABLE IF NOT EXISTS Funcionario(
   cpf_funcionario varchar(14) primary key,
+  nivel_funcionario int default 1,
   nome_funcionario varchar(50) not null
 );
 
 CREATE TABLE IF NOT EXISTS Ingrediente(
   codigo_ingrediente int primary key auto_increment,
-  nome_ingrediente varchar(50) not null
+  nome_ingrediente varchar(50) not null,
+  quantidadeGasta int default 0
 );
 
 CREATE TABLE IF NOT EXISTS ItemMenu(
@@ -73,7 +77,8 @@ CREATE TABLE IF NOT EXISTS PedidoItem(
   Constraint fk_PedidoItem_Item foreign key(codigo_item) references ItemMenu(codigo_item)
 );
 
--- FUNCTIONS
+-- FUNCTIONS GERAIS
+
 DELIMITER $$
 
 CREATE FUNCTION precoPedido(codigo_pedido int) RETURNS float
@@ -89,23 +94,112 @@ CREATE FUNCTION precoPedido(codigo_pedido int) RETURNS float
     RETURN preco_pedido;
   END $$
 
+CREATE FUNCTION numeroPedidosFuncionario(cpfFuncionario varchar(14)) RETURNS int
+  BEGIN
+    DECLARE countPedidos int DEFAULT 0;
+
+    SELECT count(ItemMenu.preco_item) into countPedidos
+      FROM Pedido
+      WHERE Pedido.funcionario_fk like cpfFuncionario;
+
+    RETURN countPedidos;
+  END $$
+
+CREATE FUNCTION numeroPedidosOnline() RETURNS int
+  BEGIN
+    DECLARE countPedidos int DEFAULT 0;
+
+    SELECT numeroPedidosFuncionario("none") into countPedidos;
+
+    RETURN countPedidos;
+  END $$
+
 DELIMITER ;
 
--- VIEWS
+-- VIEWS - PEDIDOS STATUS
 
 CREATE OR REPLACE VIEW PedidosEmAberto as
-  Select *, precoPedido(Pedido.codigo_pedido)
-    From Pedido
-    Where Pedido.status=1;
+  SELECT *, precoPedido(Pedido.codigo_pedido)
+    FROM Pedido
+    WHERE Pedido.status=1;
 
 CREATE OR REPLACE VIEW PedidosConfirmados as
-  Select *, precoPedido(Pedido.codigo_pedido)
-    From Pedido
-    Where Pedido.status=2;
+  SELECT *, precoPedido(Pedido.codigo_pedido)
+    FROM Pedido
+    WHERE Pedido.status=2;
 
 CREATE OR REPLACE VIEW PedidosEntregues as
-  Select *, precoPedido(Pedido.codigo_pedido)
-    From Pedido
-    Where Pedido.status=3;
+  SELECT *, precoPedido(Pedido.codigo_pedido)
+    FROM Pedido
+    WHERE Pedido.status=3;
+
+-- FUNCTIONS USANDO PEDIDOS STATUS
+
+DELIMITER $$
+CREATE FUNCTION codigoPedidoAbertoCliente(telefone varchar(20)) RETURNS int
+  BEGIN
+    DECLARE cpa int DEFAULT -1;
+
+    SELECT Pedido.codigo_pedido into cpa
+      FROM [PedidosEmAberto]
+      WHERE
+        cliente_fk like telefone;
+
+    RETURN cpa;
+
+  END $$
+DELIMITER ;
+
+-- VIEWS - CLIENTES TIPOS
+
+CREATE OR REPLACE VIEW ClientesPendentes as
+  SELECT *
+    FROM Cliente
+    WHERE Cliente.status_cliente = 1;
+
+CREATE OR REPLACE VIEW ClientesAtivos as
+  SELECT *
+    FROM Cliente
+    WHERE Cliente.status_cliente = 2;
+
+CREATE OR REPLACE VIEW ClientesApagados as
+  SELECT *
+    FROM Cliente
+    WHERE Cliente.status_cliente = 3;
+
+-- VIEWS - FUNCIONARIOS TIPOS
+
+CREATE OR REPLACE VIEW FuncionariosAtendentes as
+  SELECT *
+    FROM Funcionario
+    WHERE Funcionario.nivel_funcionario = 1;
+
+CREATE OR REPLACE VIEW FuncionariosGerentes as
+  SELECT *
+    FROM Funcionario
+    WHERE Funcionario.nivel_funcionario = 2;
+
+-- PROCEDURES
+
+DELIMITER $$
+
+DELIMITER ;
 
 -- TRIGGERS
+
+DELIMITER $$
+
+-- CREATE OR REPLACE TRIGGER  entrega_pedido
+--   AFTER UPDATE ON Pedido
+--   FOREACH row
+--   BEGIN
+--     IF(new.status = 3 AND old.status <> 3) THEN
+--
+--
+--   END $$
+
+
+DELIMITER ;
+-- INSERTS
+
+INSERT INTO Funcionario values("none", "Pedido Online")
