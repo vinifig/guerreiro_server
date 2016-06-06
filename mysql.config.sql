@@ -308,23 +308,6 @@ CREATE OR REPLACE TRIGGER item_menu_adicionado
       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
     END IF;
   END $$
-
--- CREATE OR REPLACE TRIGGER entrega_pedido
---   AFTER UPDATE ON Pedido
---   FOREACH row
---   BEGIN
---     IF(new.status = 3 AND old.status <> 3) THEN
---       (SELECT ItemIngrediente.codigo_ingrediente, ItemIngrediente.quantidade
---         FROM PedidoItem
---         INNER JOIN ItemMenu ON  ItemMenu.codigo_pedido = new.codigo_pedido
---         INNER JOIN ItemIngrediente ON ItemMenu.codigo_item = ItemIngrediente.codigo_item)
---
---     ENDIF;
---
---   END $$
-
-
-
 DELIMITER ;
 
 -- INSERTS
