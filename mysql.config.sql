@@ -275,6 +275,8 @@ CREATE PROCEDURE adiciona_ingrediente( IN nome varchar(50) )
 
 CREATE PROCEDURE remove_ingrediente( IN codigo int )
   BEGIN
+    DELETE FROM ItemIngrediente
+      Where codigo_ingrediente = codigo;
     DELETE FROM Ingrediente
       Where codigo_ingrediente = codigo;
   END $$
@@ -337,15 +339,14 @@ CREATE OR REPLACE TRIGGER item_menu_adicionado
       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
     END IF;
   END $$
-DELIMITER $$
 
-CREATE OR REPLACE TRIGGER ingrediente_removido
-  BEFORE Delete ON Ingrediente
-  FOR EACH ROW
-  BEGIN
-    DELETE FROM ItemIngrediente
-      WHERE ItemIngrediente.codigo_ingrediente = old.codigo_ingrediente;
-  END $$
+-- CREATE OR REPLACE TRIGGER ingrediente_removido
+--   BEFORE Delete ON Ingrediente
+--   FOR EACH ROW
+--   BEGIN
+--     DELETE FROM ItemIngrediente
+--       WHERE ItemIngrediente.codigo_ingrediente = old.codigo_ingrediente;
+--   END $$
 
 DELIMITER ;
 
