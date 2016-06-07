@@ -318,7 +318,7 @@ CREATE PROCEDURE cadastra_gerente(IN cpf VARCHAR(14), IN nome VARCHAR(50), IN se
 
 CREATE PROCEDURE apaga_funcionario_gerente(IN cpf varchar(14))
   BEGIN
-    REMOVE FROM Funcionario
+    DELETE FROM Funcionario
       WHERE cpf_funcionario like cpf;
   END$$
 
@@ -327,18 +327,18 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE OR REPLACE TRIGGER item_menu_adicionado
-  BEFORE INSERT ON PedidoItem
-  FOR EACH ROW
-  BEGIN
-    DECLARE pedido_status int;
-    SELECT Pedido.status INTO pedido_status
-      FROM Pedido
-      WHERE Pedido.codigo_pedido = new.codigo_pedido;
-    IF(pedido_status <> 1) THEN
-      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
-    END IF;
-  END $$
+-- CREATE OR REPLACE TRIGGER item_menu_adicionado
+--   BEFORE INSERT ON PedidoItem
+--   FOR EACH ROW
+--   BEGIN
+--     DECLARE pedido_status int;
+--     SELECT Pedido.status INTO pedido_status
+--       FROM Pedido
+--       WHERE Pedido.codigo_pedido = new.codigo_pedido;
+--     IF(pedido_status <> 1) THEN
+--       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
+--     END IF;
+--   END $$
 
 -- CREATE OR REPLACE TRIGGER ingrediente_removido
 --   BEFORE Delete ON Ingrediente

@@ -10,6 +10,7 @@ const Log = require('./lib/log');
 const modules = {};
 
 modules.clientes = require('./lib/modules/clientes');
+modules.funcionarios = require('./lib/modules/funcionarios');
 modules.itemsmenu = require('./lib/modules/items_menu');
 
 
@@ -67,6 +68,22 @@ const app = express();
 
     // DELETE
     app.delete('/cliente', modules.clientes.removeCliente);
+
+  // FUNCIONARIOS
+    // GET
+
+    app.get('/funcionario', modules.funcionarios.getAll);
+    app.get('/funcionario/:cpf', modules.funcionarios.getOne);
+
+    // POST
+    app.post('/funcionario', modules.funcionarios.addFuncionario);
+    app.post('/gerente', modules.funcionarios.addGerente);
+    app.post('/funcionario/auth', modules.funcionarios.auth);
+
+    // PUT
+
+    // DELETE
+    app.delete('/funcionario', modules.funcionarios.removeFuncionario);
 
   // INGREDIENTES
     // GET
