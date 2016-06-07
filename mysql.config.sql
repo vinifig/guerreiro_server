@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS Pedido(
   forma_pagamento_fk int not null,
   cliente_fk varchar(20) not null,
   funcionario_fk varchar(14) not null,
-
+  nome_cliente varchar(50) null default null,
   Constraint fk_Pedido_FormaPagamento foreign key(forma_pagamento_fk) references FormaPagamento(codigo_forma_pagamento),
   Constraint fk_Pedido_Cliente foreign key(cliente_fk) references Cliente(num_celular),
   Constraint fk_Pedido_Funcionario foreign key(funcionario_fk) references Funcionario(cpf_funcionario)
@@ -337,6 +337,7 @@ CREATE OR REPLACE TRIGGER item_menu_adicionado
       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
     END IF;
   END $$
+DELIMITER $$
 
 CREATE OR REPLACE TRIGGER ingrediente_removido
   BEFORE Delete ON Ingrediente
