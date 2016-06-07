@@ -186,6 +186,15 @@ CREATE OR REPLACE VIEW FuncionariosGerentes as
     FROM Funcionario
     WHERE Funcionario.nivel_funcionario = 2;
 
+-- VIEWS - ITEM MENU
+
+CREATE OR REPLACE VIEW ItemMenuIngrediente as
+  SELECT ItemMenu.codigo_item, ItemMenu.nome_item, ItemMenu.preco_item, ItemMenu.descricao_item,
+      ItemIngrediente.quantidade, Ingrediente.nome_ingrediente
+    FROM ItemMenu
+    INNER JOIN ItemIngrediente ON ItemMenu.codigo_item = ItemIngrediente.codigo_item
+    INNER JOIN Ingrediente ON ItemIngrediente.codigo_ingrediente = Ingrediente.codigo_ingrediente;
+
 -- PROCEDURES
 
 DELIMITER $$
@@ -328,6 +337,15 @@ CREATE OR REPLACE TRIGGER item_menu_adicionado
       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
     END IF;
   END $$
+
+CREATE OR REPLACE TRIGGER ingrediente_removido
+  BEFORE Delete ON Ingrediente
+  FOR EACH ROW
+  BEGIN
+    DELETE FROM ItemIngrediente
+      WHERE ItemIngrediente.codigo_ingrediente = old.codigo_ingrediente;
+  END $$
+
 DELIMITER ;
 
 -- INSERTS

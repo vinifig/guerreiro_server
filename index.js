@@ -8,7 +8,9 @@ const bodyParser = require('body-parser')
 const Log = require('./lib/log');
 
 const modules = {};
+
 modules.clientes = require('./lib/modules/clientes');
+modules.itemsmenu = require('./lib/modules/items_menu');
 
 
 const app = express();
@@ -59,14 +61,31 @@ const app = express();
     app.post('/cliente', modules.clientes.addCliente);
     app.post('/cliente/auth', modules.clientes.auth);
 
-    // app.post('/endpoint', callback);
-
     // PUT
     app.put('/cliente/autoriza', modules.clientes.autorizaCliente);
-    // app.put('/endpoint', callback);
+
 
     // DELETE
     app.delete('/cliente', modules.clientes.removeCliente);
-    // app.delete('/endpoint', callback);
+
+  // INGREDIENTES
+    // GET
+
+    app.get('/ingrediente', modules.itemsmenu.getAllIngredientes);
+    app.get('/ingrediente/:codigo', modules.itemsmenu.getOneIngrediente);
+    app.get('/itemmenu', modules.itemsmenu.getAllItensMenu);
+    app.get('/itemmenu/:codigo', modules.itemsmenu.getOneItemMenu);
+
+    // POST
+    app.post('/ingrediente', modules.itemsmenu.addIngrediente);
+    app.post('/itemmenu', modules.itemsmenu.addItemMenu);
+
+    // PUT
+    app.put('/ingredientemenu/add', modules.itemsmenu.adicionaIngredienteItemMenu);
+    app.put('/ingredientemenu/remove', modules.itemsmenu.removeIngredienteItemMenu);
+
+    // DELETE
+    app.delete('/ingrediente', modules.itemsmenu.removeIngrediente);
+    app.delete('/itemmenu', modules.itemsmenu.removeItemMenu);
 
 app.listen(8080);
