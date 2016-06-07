@@ -8,7 +8,7 @@ const bodyParser = require('body-parser')
 const Log = require('./lib/log');
 
 const modules = {};
-modules.users = require('./lib/modules/users');
+modules.clientes = require('./lib/modules/clientes');
 
 
 const app = express();
@@ -30,13 +30,13 @@ const app = express();
   // frescuras de requisição
   app.use(cors());
   app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({extended:false}));
+  app.use(bodyParser.urlencoded({extended:true}));
 
   // resposta default em caso de não haver conexão com o db
   app.use(function(req,res,next){
     if(!db)
       return res.json({error: "Error stablishing database connection"});
-    return res.json({success: "Database connected"});
+    // return res.json({success: "Database connected"});
     req.dbEntity = db;
     next();
   });
@@ -45,17 +45,28 @@ const app = express();
 // ENDPOINTS
 // Aqui começa a programação de verdade
 
-  // GET
-  app.get('/users', modules.users.getAll);
-  app.get('/users/:id', modules.users.getOne);
+  // CLIENTES
+    // GET
 
-  // POST
-  // app.post('/endpoint', callback);
+    app.get('/cliente', modules.clientes.getAll);
+    app.get('/cliente/:celular', modules.clientes.getOne);
+    app.get('/clienteAtivo', modules.clientes.getAllAtivo);
+    app.get('/clienteAtivo/:celular', modules.clientes.getOneAtivo);
+    app.get('/clientePendente', modules.clientes.getAllPendente);
+    app.get('/clientePendente/:celular', modules.clientes.getOnePendente);
 
-  // PUT
-  // app.put('/endpoint', callback);
+    // POST
+    app.post('/cliente', modules.clientes.addCliente);
+    app.post('/cliente/auth', modules.clientes.auth);
 
-  // DELETE
-  // app.delete('/endpoint', callback);
+    // app.post('/endpoint', callback);
+
+    // PUT
+    app.put('/cliente/autoriza', modules.clientes.autorizaCliente);
+    // app.put('/endpoint', callback);
+
+    // DELETE
+    app.delete('/cliente', modules.clientes.removeCliente);
+    // app.delete('/endpoint', callback);
 
 app.listen(8080);

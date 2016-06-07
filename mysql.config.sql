@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Cliente(
 CREATE TABLE IF NOT EXISTS Funcionario(
   cpf_funcionario varchar(14) primary key,
   nome_funcionario varchar(50) not null,
+  senha_funcionario varchar(50) not null,
   nivel_funcionario int default 1
 );
 
@@ -206,15 +207,15 @@ CREATE PROCEDURE cria_cliente(IN nome VARCHAR(50), IN celular VARCHAR(20), IN se
 CREATE PROCEDURE autoriza_cliente(IN celular VARCHAR(20))
   BEGIN
     UPDATE ClientesPendentes
-    SET status = 2
-    WHERE num_celular=celular;
+    SET status_cliente = 2
+    WHERE num_celular like celular;
   END $$
 
 CREATE PROCEDURE remove_cliente(IN celular VARCHAR(20))
   BEGIN
     UPDATE Cliente
-    SET status = 3
-    WHERE num_celular=celular;
+    SET status_cliente = 3
+    WHERE num_celular like celular;
   END $$
 
 -- PROC DE PEDIDOS
@@ -290,8 +291,27 @@ CREATE PROCEDURE atualiza_qtd_ingrediente_item( IN ing_codigo int, IN item_codig
       WHERE codigo_ingrediente = ing_codigo AND codigo_item = item_codigo;
   END$$
 
-DELIMITER ;
+-- PROCs Funcionario
 
+CREATE PROCEDURE cadastra_funcionario(IN cpf VARCHAR(14), IN nome VARCHAR(50), IN senha VARCHAR(32))
+  BEGIN
+    INSERT INTO Funcionario
+      VALUES(cpf, nome, senha, 1);
+  END$$
+
+CREATE PROCEDURE cadastra_gerente(IN cpf VARCHAR(14), IN nome VARCHAR(50), IN senha VARCHAR(32))
+  BEGIN
+    INSERT INTO Funcionario
+      VALUES(cpf, nome, senha, 2);
+  END$$
+
+CREATE PROCEDURE apaga_funcionario_gerente(IN cpf varchar(14))
+  BEGIN
+    REMOVE FROM Funcionario
+      WHERE cpf_funcionario like cpf;
+  END$$
+
+DELIMITER ;
 -- TRIGGERS
 
 DELIMITER $$
