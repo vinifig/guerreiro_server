@@ -12,6 +12,7 @@ const modules = {};
 modules.clientes = require('./lib/modules/clientes');
 modules.funcionarios = require('./lib/modules/funcionarios');
 modules.itemsmenu = require('./lib/modules/items_menu');
+modules.pedidos = require('./lib/modules/pedidos');
 
 
 const app = express();
@@ -104,5 +105,23 @@ const app = express();
     // DELETE
     app.delete('/ingrediente', modules.itemsmenu.removeIngrediente);
     app.delete('/itemmenu', modules.itemsmenu.removeItemMenu);
+
+// PEDIDOS
+  // GET
+
+  app.get('/pedido', modules.pedidos.getAll);
+  app.get('/pedido/:codigo', modules.pedidos.getOne);
+
+  // POST
+  app.post('/pedido', modules.pedidos.addPedido);
+
+  // PUT
+  app.put('/pedidoitem/add', modules.pedidos.adicionaIngredientePedido);
+  app.put('/pedidoitem/remove', modules.pedidos.removeIngredientePedido);
+  app.put('/pedidoitem/update', modules.pedidos.atualizaIngredientePedido);
+  app.put('/pedido/confirma', modules.pedidos.fechaPedido);
+  app.put('/pedido/entrega', modules.pedidos.entregaPedido);
+
+  // DELETE
 
 app.listen(8080);

@@ -51,7 +51,6 @@ CREATE TABLE IF NOT EXISTS Pedido(
   forma_pagamento_fk int not null,
   cliente_fk varchar(20) not null,
   funcionario_fk varchar(14) not null,
-  nome_cliente varchar(50) null default null,
   Constraint fk_Pedido_FormaPagamento foreign key(forma_pagamento_fk) references FormaPagamento(codigo_forma_pagamento),
   Constraint fk_Pedido_Cliente foreign key(cliente_fk) references Cliente(num_celular),
   Constraint fk_Pedido_Funcionario foreign key(funcionario_fk) references Funcionario(cpf_funcionario)
@@ -75,13 +74,6 @@ CREATE TABLE IF NOT EXISTS PedidoItem(
   Constraint pk_PedidoItem primary key(codigo_pedido, codigo_item),
   Constraint fk_PedidoItem_Pedido foreign key(codigo_pedido) references Pedido(codigo_pedido),
   Constraint fk_PedidoItem_Item foreign key(codigo_item) references ItemMenu(codigo_item)
-);
-
-CREATE TABLE IF NOT EXISTS IngredienteGasto(
-  codigo_ingrediente int not null,
-  quantidade_gasta int not null,
-  datahora_gasto DATETIME not null,
-  Constraint fk_IngredienteGasto_Ingrediente foreign key(codigo_ingrediente) references Ingrediente(codigo_ingrediente)
 );
 
 -- FUNCTIONS GERAIS
@@ -123,22 +115,6 @@ CREATE FUNCTION numeroPedidosOnline() RETURNS int
 
 DELIMITER ;
 
--- VIEWS - PEDIDOS STATUS
-
-CREATE OR REPLACE VIEW PedidosEmAberto as
-  SELECT *, precoPedido(Pedido.codigo_pedido)
-    FROM Pedido
-    WHERE Pedido.status=1;
-
-CREATE OR REPLACE VIEW PedidosConfirmados as
-  SELECT *, precoPedido(Pedido.codigo_pedido)
-    FROM Pedido
-    WHERE Pedido.status=2;
-
-CREATE OR REPLACE VIEW PedidosEntregues as
-  SELECT *, precoPedido(Pedido.codigo_pedido)
-    FROM Pedido
-    WHERE Pedido.status=3;
 
 -- FUNCTIONS USANDO PEDIDOS STATUS
 
@@ -195,6 +171,32 @@ CREATE OR REPLACE VIEW ItemMenuIngrediente as
     INNER JOIN ItemIngrediente ON ItemMenu.codigo_item = ItemIngrediente.codigo_item
     INNER JOIN Ingrediente ON ItemIngrediente.codigo_ingrediente = Ingrediente.codigo_ingrediente;
 
+-- VIEWS - PEDIDOS STATUS
+
+CREATE OR REPLACE VIEW PedidosComItens as
+  SELECT Pedido.*, ItemMenu.*, PedidoItem.quantidade, Funcionario.nome_funcionario,
+      Cliente.nome_cliente, Cliente.email, FormaPagamento.nome_forma_pagamento, precoPedido(Pedido.codigo_pedido) as preco_pedido  FROM Pedido
+    INNER JOIN PedidoItem ON PedidoItem.codigo_pedido = Pedido.codigo_pedido
+    INNER JOIN ItemMenu ON ItemMenu.codigo_item = PedidoItem.codigo_item
+    INNER JOIN Cliente ON Cliente.num_celular = Pedido.cliente_fk
+    INNER JOIN Funcionario ON Funcionario.cpf_funcionario = Pedido.funcionario_fk
+    INNER JOIN FormaPagamento ON FormaPagamento.codigo_forma_pagamento = Pedido.forma_pagamento_fk;
+
+CREATE OR REPLACE VIEW PedidosEmAberto as
+  SELECT *
+  FROM PedidosComItens as Pedido
+  WHERE Pedido.status=1;
+
+CREATE OR REPLACE VIEW PedidosConfirmados as
+  SELECT *
+  FROM PedidosComItens as Pedido
+  WHERE Pedido.status=2;
+
+CREATE OR REPLACE VIEW PedidosEntregues as
+  SELECT *
+  FROM PedidosComItens as Pedido
+  WHERE Pedido.status=3;
+
 -- PROCEDURES
 
 DELIMITER $$
@@ -235,6 +237,30 @@ CREATE PROCEDURE cria_pedido( IN telefone_cliente varchar(20), IN cpf_funcionari
       Pedido(status, forma_pagamento_fk, cliente_fk, funcionario_fk )
       VALUES
         (1, codigo_forma_pagamento, telefone_cliente, cpf_funcionario);
+  END $$
+
+CREATE PROCEDURE adiciona_item_menu_pedido(IN cod_p int, IN cod_item int, IN quantidade int)
+  BEGIN
+    INSERT INTO PedidoItem
+      VALUES(cod_p, cod_item, quantidade);
+  END $$
+
+CREATE PROCEDURE remove_item_menu_pedido(IN cod_p int, IN cod_item int)
+  BEGIN
+    DELETE FROM PedidoItem
+      WHERE
+        PedidoItem.codigo_pedido = cod_p AND
+        PedidoItem.codigo_item = cod_item;
+  END $$
+
+CREATE PROCEDURE atualiza_item_menu_pedido(IN cod_p int, IN cod_item int, IN quantidade int)
+  BEGIN
+    UPDATE PedidoItem
+      SET
+        PedidoItem.quantidade = quantidade
+      WHERE
+        PedidoItem.codigo_pedido = cod_p AND
+        PedidoItem.codigo_item = cod_item;
   END $$
 
 CREATE PROCEDURE fecha_pedido( IN c_pedido int, IN dh_entrega DATETIME, IN obs TINYTEXT)
@@ -352,4 +378,8 @@ DELIMITER ;
 
 -- INSERTS
 
-INSERT INTO Funcionario(cpf_funcionario, nome_funcionario) values("none", "Pedido Online");
+call cadastra_funcionario("none", "Pedido Online", "6f192cfb0ce397773b9ff9959189131f");
+call cadastra_funcionario("default", "Funcionario", "6f192cfb0ce397773b9ff9959189131f");
+call cadastra_gerente("guerreiro", "Guerreiro", "6f192cfb0ce397773b9ff9959189131f");
+cria_cliente('Pedido fisico', "none", "", IN email VARCHAR(100) )
+INSERT INTO FormaPagamento(nome_forma_pagamento) values("Debito"), ("Dinheiro"), ("Credito");
