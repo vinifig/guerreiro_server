@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS Ingrediente(
 CREATE TABLE IF NOT EXISTS ItemMenu(
   codigo_item int primary key auto_increment,
   nome_item varchar(50) not null,
-  preco_item float(2,2) not null,
+  preco_item float(4,2) not null,
   descricao_item TINYTEXT not null
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Pedido(
   codigo_pedido int primary key auto_increment,
   status int not null,
   observacoes_pedido TINYTEXT,
-  datahora_pedido DATETIME not null DEFAULT NOW(),
+  datahora_pedido DATETIME not null,
   datahora_entrega DATETIME null,
 
   forma_pagamento_fk int not null,
@@ -234,9 +234,9 @@ CREATE PROCEDURE remove_cliente(IN celular VARCHAR(20))
 CREATE PROCEDURE cria_pedido( IN telefone_cliente varchar(20), IN cpf_funcionario varchar(14), IN codigo_forma_pagamento int)
   BEGIN
     INSERT INTO
-      Pedido(status, forma_pagamento_fk, cliente_fk, funcionario_fk )
+      Pedido(status, forma_pagamento_fk, cliente_fk, funcionario_fk,  datahora_pedido)
       VALUES
-        (1, codigo_forma_pagamento, telefone_cliente, cpf_funcionario);
+        (1, codigo_forma_pagamento, telefone_cliente, cpf_funcionario, NOW());
   END $$
 
 CREATE PROCEDURE adiciona_item_menu_pedido(IN cod_p int, IN cod_item int, IN quantidade int)
@@ -279,7 +279,7 @@ CREATE PROCEDURE entrega_pedido( IN c_pedido int )
 
 -- PROCs ItemMenu
 
-CREATE PROCEDURE adiciona_item_menu( IN preco float(2,2), IN nome VARCHAR(50), IN descricao TINYTEXT )
+CREATE PROCEDURE adiciona_item_menu( IN preco float(4,2), IN nome VARCHAR(50), IN descricao TINYTEXT )
   BEGIN
     INSERT INTO ItemMenu(nome_item, preco_item, descricao_item)
       VALUES(nome, preco, descricao);
@@ -378,8 +378,29 @@ DELIMITER ;
 
 -- INSERTS
 
+INSERT INTO FormaPagamento(nome_forma_pagamento) values("Debito"), ("Dinheiro"), ("Credito");
+
 call cadastra_funcionario("none", "Pedido Online", "6f192cfb0ce397773b9ff9959189131f");
 call cadastra_funcionario("default", "Funcionario", "6f192cfb0ce397773b9ff9959189131f");
 call cadastra_gerente("guerreiro", "Guerreiro", "6f192cfb0ce397773b9ff9959189131f");
-cria_cliente('Pedido fisico', "none", "", IN email VARCHAR(100) )
-INSERT INTO FormaPagamento(nome_forma_pagamento) values("Debito"), ("Dinheiro"), ("Credito");
+call cria_cliente('Pedido fisico', "none", "", "");
+call cria_cliente("João", "123.456.789-00", "6f192cfb0ce397773b9ff9959189131f", "joao@zi.nho");
+call adiciona_ingrediente("pão");
+call adiciona_ingrediente("queijo");
+call adiciona_ingrediente("hamburguer");
+call adiciona_ingrediente("frango");
+call adiciona_ingrediente("bacon");
+call adiciona_ingrediente("calabresa");
+call adiciona_ingrediente("salsicha");
+call adiciona_item_menu( "3.50", "Dog-simples", "Melhor dog simples da região" );
+call adiciona_ingrediente_item( 1, 1, 1 );
+call adiciona_ingrediente_item( 7, 1, 2 );
+call cria_pedido( "none", "none", 1);
+call cria_pedido( "none", "none", 2);
+call cria_pedido( "none", "none", 3);
+call adiciona_item_menu_pedido( 1, 1, 2);
+call adiciona_item_menu_pedido( 2, 1, 3);
+call adiciona_item_menu_pedido( 3, 1, 1);
+call fecha_pedido( 1, '2016-06-12 20:50:00', "Dobro de vinagrete");
+call fecha_pedido( 2, '2016-06-13 18:50:00', "Sem vinagrete");
+call entrega_pedido( 1 );
