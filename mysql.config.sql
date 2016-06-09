@@ -385,6 +385,8 @@ call cadastra_funcionario("default", "Funcionario", "6f192cfb0ce397773b9ff995918
 call cadastra_gerente("guerreiro", "Guerreiro", "6f192cfb0ce397773b9ff9959189131f");
 call cria_cliente('Pedido fisico', "none", "", "");
 call cria_cliente("João", "123.456.789-00", "6f192cfb0ce397773b9ff9959189131f", "joao@zi.nho");
+call autoriza_cliente("123.456.789-00");
+call autoriza_cliente("none");
 call adiciona_ingrediente("pão");
 call adiciona_ingrediente("queijo");
 call adiciona_ingrediente("hamburguer");
