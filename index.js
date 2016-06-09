@@ -52,75 +52,75 @@ const app = express();
   // CLIENTES
     // GET
 
-    app.get('/cliente', modules.clientes.getAll);
-    app.get('/cliente/:celular', modules.clientes.getOne);
-    app.get('/clienteAtivo', modules.clientes.getAllAtivo);
-    app.get('/clienteAtivo/:celular', modules.clientes.getOneAtivo);
-    app.get('/clientePendente', modules.clientes.getAllPendente);
-    app.get('/clientePendente/:celular', modules.clientes.getOnePendente);
+    app.get('/guerreiro/cliente', modules.clientes.getAll);
+    app.get('/guerreiro/cliente/:celular', modules.clientes.getOne);
+    app.get('/guerreiro/clienteAtivo', modules.clientes.getAllAtivo);
+    app.get('/guerreiro/clienteAtivo/:celular', modules.clientes.getOneAtivo);
+    app.get('/guerreiro/clientePendente', modules.clientes.getAllPendente);
+    app.get('/guerreiro/clientePendente/:celular', modules.clientes.getOnePendente);
 
     // POST
-    app.post('/cliente', modules.clientes.addCliente);
-    app.post('/cliente/auth', modules.clientes.auth);
+    app.post('/guerreiro/cliente', modules.clientes.addCliente);
+    app.post('/guerreiro/cliente/auth', modules.clientes.auth);
 
     // PUT
-    app.put('/cliente/autoriza', modules.clientes.autorizaCliente);
+    app.put('/guerreiro/cliente/autoriza', modules.clientes.autorizaCliente);
 
 
     // DELETE
-    app.delete('/cliente', modules.clientes.removeCliente);
+    app.delete('/guerreiro/cliente', modules.clientes.removeCliente);
 
   // FUNCIONARIOS
     // GET
 
-    app.get('/funcionario', modules.funcionarios.getAll);
-    app.get('/funcionario/:cpf', modules.funcionarios.getOne);
+    app.get('/guerreiro/funcionario', modules.funcionarios.getAll);
+    app.get('/guerreiro/funcionario/:cpf', modules.funcionarios.getOne);
 
     // POST
-    app.post('/funcionario', modules.funcionarios.addFuncionario);
-    app.post('/gerente', modules.funcionarios.addGerente);
-    app.post('/funcionario/auth', modules.funcionarios.auth);
+    app.post('/guerreiro/funcionario', modules.funcionarios.addFuncionario);
+    app.post('/guerreiro/gerente', modules.funcionarios.addGerente);
+    app.post('/guerreiro/funcionario/auth', modules.funcionarios.auth);
 
     // PUT
 
     // DELETE
-    app.delete('/funcionario', modules.funcionarios.removeFuncionario);
+    app.delete('/guerreiro/funcionario', modules.funcionarios.removeFuncionario);
 
   // INGREDIENTES
     // GET
 
-    app.get('/ingrediente', modules.itemsmenu.getAllIngredientes);
-    app.get('/ingrediente/:codigo', modules.itemsmenu.getOneIngrediente);
-    app.get('/itemmenu', modules.itemsmenu.getAllItensMenu);
-    app.get('/itemmenu/:codigo', modules.itemsmenu.getOneItemMenu);
+    app.get('/guerreiro/ingrediente', modules.itemsmenu.getAllIngredientes);
+    app.get('/guerreiro/ingrediente/:codigo', modules.itemsmenu.getOneIngrediente);
+    app.get('/guerreiro/itemmenu', modules.itemsmenu.getAllItensMenu);
+    app.get('/guerreiro/itemmenu/:codigo', modules.itemsmenu.getOneItemMenu);
 
     // POST
-    app.post('/ingrediente', modules.itemsmenu.addIngrediente);
-    app.post('/itemmenu', modules.itemsmenu.addItemMenu);
+    app.post('/guerreiro/ingrediente', modules.itemsmenu.addIngrediente);
+    app.post('/guerreiro/itemmenu', modules.itemsmenu.addItemMenu);
 
     // PUT
-    app.put('/ingredientemenu/add', modules.itemsmenu.adicionaIngredienteItemMenu);
-    app.put('/ingredientemenu/remove', modules.itemsmenu.removeIngredienteItemMenu);
+    app.put('/guerreiro/ingredientemenu/add', modules.itemsmenu.adicionaIngredienteItemMenu);
+    app.put('/guerreiro/ingredientemenu/remove', modules.itemsmenu.removeIngredienteItemMenu);
 
     // DELETE
-    app.delete('/ingrediente', modules.itemsmenu.removeIngrediente);
-    app.delete('/itemmenu', modules.itemsmenu.removeItemMenu);
+    app.delete('/guerreiro/ingrediente', modules.itemsmenu.removeIngrediente);
+    app.delete('/guerreiro/itemmenu', modules.itemsmenu.removeItemMenu);
 
 // PEDIDOS
   // GET
 
-  app.get('/pedido', modules.pedidos.getAll);
-  app.get('/pedido/:codigo', modules.pedidos.getOne);
+  app.get('/guerreiro/pedido', modules.pedidos.getAll);
+  app.get('/guerreiro/pedido/:codigo', modules.pedidos.getOne);
 
   // POST
-  app.post('/pedido', modules.pedidos.addPedido);
+  app.post('/guerreiro/pedido', modules.pedidos.addPedido);
 
   // PUT
-  app.put('/pedidoitem/add', modules.pedidos.adicionaIngredientePedido);
-  app.put('/pedidoitem/remove', modules.pedidos.removeIngredientePedido);
-  app.put('/pedidoitem/update', modules.pedidos.atualizaIngredientePedido);
-  app.put('/pedido/confirma', modules.pedidos.fechaPedido);
-  app.put('/pedido/entrega', modules.pedidos.entregaPedido);
+  app.put('/guerreiro/pedidoitem/add', modules.pedidos.adicionaIngredientePedido);
+  app.put('/guerreiro/pedidoitem/remove', modules.pedidos.removeIngredientePedido);
+  app.put('/guerreiro/pedidoitem/update', modules.pedidos.atualizaIngredientePedido);
+  app.put('/guerreiro/pedido/confirma', modules.pedidos.fechaPedido);
+  app.put('/guerreiro/pedido/entrega', modules.pedidos.entregaPedido);
 
   // DELETE
 
