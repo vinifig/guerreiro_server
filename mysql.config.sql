@@ -84,7 +84,7 @@ CREATE FUNCTION precoPedido(codigo_pedido int) RETURNS float
   BEGIN
     DECLARE preco_pedido float DEFAULT '0.0';
 
-    SELECT sum(ItemMenu.preco_item) into preco_pedido
+    SELECT sum(ItemMenu.preco_item * PedidoItem.quantidade) into preco_pedido
       FROM PedidoItem
       INNER JOIN ItemMenu
         ON ItemMenu.codigo_item=PedidoItem.codigo_item
