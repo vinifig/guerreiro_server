@@ -173,6 +173,10 @@ CREATE OR REPLACE VIEW ItemMenuIngrediente as
 
 -- VIEWS - PEDIDOS STATUS
 
+CREATE OR REPLACE VIEW PedidosComPreco as
+  SELECT Pedido.*, precoPedido(Pedido.codigo_pedido) as preco_pedido
+    FROM Pedido;
+
 CREATE OR REPLACE VIEW PedidosComItens as
   SELECT Pedido.*, ItemMenu.*, PedidoItem.quantidade, Funcionario.nome_funcionario,
       Cliente.nome_cliente, Cliente.email, FormaPagamento.nome_forma_pagamento, precoPedido(Pedido.codigo_pedido) as preco_pedido  FROM Pedido
