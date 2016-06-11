@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS Pedido(
   datahora_pedido DATETIME not null,
   datahora_entrega DATETIME null,
 
-  forma_pagamento_fk int not null,
+  forma_pagamento_fk int null default 1,
   cliente_fk varchar(20) not null,
   funcionario_fk varchar(14) not null,
   Constraint fk_Pedido_FormaPagamento foreign key(forma_pagamento_fk) references FormaPagamento(codigo_forma_pagamento),
@@ -231,12 +231,12 @@ CREATE PROCEDURE remove_cliente(IN celular VARCHAR(20))
 
 -- PROC DE PEDIDOS
 
-CREATE PROCEDURE cria_pedido( IN telefone_cliente varchar(20), IN cpf_funcionario varchar(14), IN codigo_forma_pagamento int)
+CREATE PROCEDURE cria_pedido( IN telefone_cliente varchar(20), IN cpf_funcionario varchar(14))
   BEGIN
     INSERT INTO
-      Pedido(status, forma_pagamento_fk, cliente_fk, funcionario_fk,  datahora_pedido)
+      Pedido(status, cliente_fk, funcionario_fk,  datahora_pedido)
       VALUES
-        (1, codigo_forma_pagamento, telefone_cliente, cpf_funcionario, NOW());
+        (1, telefone_cliente, cpf_funcionario, NOW());
   END $$
 
 CREATE PROCEDURE adiciona_item_menu_pedido(IN cod_p int, IN cod_item int, IN quantidade int)
@@ -255,18 +255,27 @@ CREATE PROCEDURE remove_item_menu_pedido(IN cod_p int, IN cod_item int)
 
 CREATE PROCEDURE atualiza_item_menu_pedido(IN cod_p int, IN cod_item int, IN quantidade int)
   BEGIN
-    UPDATE PedidoItem
-      SET
-        PedidoItem.quantidade = quantidade
-      WHERE
-        PedidoItem.codigo_pedido = cod_p AND
-        PedidoItem.codigo_item = cod_item;
+    DECLARE verifyItem int;
+    SELECT count(PedidoItem.codigo_pedido) into verifyItem
+    FROM PedidoItem
+    WHERE PedidoItem.codigo_pedido = cod_p AND PedidoItem.codigo_item = cod_item;
+
+    IF(verifyItem = 0) THEN
+      call adiciona_item_menu_pedido(cod_p, cod_item, quantidade);
+    ELSE
+      UPDATE PedidoItem
+        SET
+          PedidoItem.quantidade = quantidade
+        WHERE
+          PedidoItem.codigo_pedido = cod_p AND
+          PedidoItem.codigo_item = cod_item;
+    END IF;
   END $$
 
-CREATE PROCEDURE fecha_pedido( IN c_pedido int, IN dh_entrega DATETIME, IN obs TINYTEXT)
+CREATE PROCEDURE fecha_pedido( IN c_pedido int, IN dh_entrega DATETIME, IN obs TINYTEXT, IN codigo_forma_pagamento int)
   BEGIN
     UPDATE PedidosEmAberto
-      SET status = 2, datahora_entrega=dh_entrega, observacoes_pedido = obs
+      SET status = 2, datahora_entrega=dh_entrega, observacoes_pedido = obs, forma_pagamento_fk = codigo_forma_pagamento
       WHERE codigo_pedido = c_pedido;
   END $$
 
@@ -352,20 +361,21 @@ DELIMITER ;
 -- TRIGGERS
 
 DELIMITER $$
+CREATE TRIGGER item_menu_adicionado
+  BEFORE INSERT ON PedidoItem
+  FOR EACH ROW
+  BEGIN
+    DECLARE pedido_status int;
+    SELECT Pedido.status INTO pedido_status
+      FROM Pedido
+      WHERE Pedido.codigo_pedido = new.codigo_pedido;
+    IF(pedido_status <> 1) THEN
+      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
+    END IF;
+  END $$
+DELIMITER ;
 
--- CREATE OR REPLACE TRIGGER item_menu_adicionado
---   BEFORE INSERT ON PedidoItem
---   FOR EACH ROW
---   BEGIN
---     DECLARE pedido_status int;
---     SELECT Pedido.status INTO pedido_status
---       FROM Pedido
---       WHERE Pedido.codigo_pedido = new.codigo_pedido;
---     IF(pedido_status <> 1) THEN
---       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "DIE: Pedidos fechados ou entregues não podem ter seus itens alterados";
---     END IF;
---   END $$
-
+-- DELIMITER $$
 -- CREATE OR REPLACE TRIGGER ingrediente_removido
 --   BEFORE Delete ON Ingrediente
 --   FOR EACH ROW
@@ -373,8 +383,7 @@ DELIMITER $$
 --     DELETE FROM ItemIngrediente
 --       WHERE ItemIngrediente.codigo_ingrediente = old.codigo_ingrediente;
 --   END $$
-
-DELIMITER ;
+-- DELIMITER ;
 
 -- INSERTS
 
@@ -397,12 +406,12 @@ call adiciona_ingrediente("salsicha");
 call adiciona_item_menu( "3.50", "Dog-simples", "Melhor dog simples da região" );
 call adiciona_ingrediente_item( 1, 1, 1 );
 call adiciona_ingrediente_item( 7, 1, 2 );
-call cria_pedido( "none", "none", 1);
-call cria_pedido( "none", "none", 2);
-call cria_pedido( "none", "none", 3);
+call cria_pedido( "none", "none");
+call cria_pedido( "none", "none");
+call cria_pedido( "none", "none");
 call adiciona_item_menu_pedido( 1, 1, 2);
 call adiciona_item_menu_pedido( 2, 1, 3);
 call adiciona_item_menu_pedido( 3, 1, 1);
-call fecha_pedido( 1, '2016-06-12 20:50:00', "Dobro de vinagrete");
-call fecha_pedido( 2, '2016-06-13 18:50:00', "Sem vinagrete");
+call fecha_pedido( 1, '2016-06-12 20:50:00', "Dobro de vinagrete", 1);
+call fecha_pedido( 2, '2016-06-13 18:50:00', "Sem vinagrete", 2);
 call entrega_pedido( 1 );
