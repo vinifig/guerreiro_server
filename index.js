@@ -110,6 +110,7 @@ const app = express();
   // GET
 
   app.get('/guerreiro/pedido', modules.pedidos.getAll);
+  app.get('/guerreiro/pedido_simple', modules.pedidos.getAllSimple);
   app.get('/guerreiro/pedido/:codigo', modules.pedidos.getOne);
 
   // POST
